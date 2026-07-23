@@ -17,7 +17,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# --- Debug: show which relevant env vars Railway actually sees (names only) ---
 relevant_keys = ["TELEGRAM_BOT_TOKEN", "ANTHROPIC_API_KEY"]
 logger.info("Checking environment variables...")
 for key in relevant_keys:
