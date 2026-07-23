@@ -17,13 +17,20 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# --- Config with clear error messages ---
+# --- Debug: show which relevant env vars Railway actually sees (names only) ---
+relevant_keys = ["TELEGRAM_BOT_TOKEN", "ANTHROPIC_API_KEY"]
+logger.info("Checking environment variables...")
+for key in relevant_keys:
+    status = "SET" if os.environ.get(key) else "MISSING"
+    logger.info(f"  {key}: {status}")
+
+
 def get_required_env(name: str) -> str:
     value = os.environ.get(name)
     if not value:
         logger.error(
             f"Missing required environment variable: {name}. "
-            f"Set it in Railway under your service's Variables tab, then redeploy."
+            f"Go to Railway -> your service -> Variables tab, add it, then redeploy."
         )
         sys.exit(1)
     return value
@@ -34,9 +41,8 @@ ANTHROPIC_API_KEY = get_required_env("ANTHROPIC_API_KEY")
 
 client = Anthropic(api_key=ANTHROPIC_API_KEY)
 
-# Simple in-memory conversation history per chat (resets on restart)
 conversations = {}
-MAX_HISTORY = 10  # messages kept per chat to limit token usage
+MAX_HISTORY = 10
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
