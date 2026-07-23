@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 from telegram import Update
 from telegram.ext import (
@@ -10,15 +11,26 @@ from telegram.ext import (
 )
 from anthropic import Anthropic
 
-# --- Config ---
-TELEGRAM_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
-ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
-
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
+
+# --- Config with clear error messages ---
+def get_required_env(name: str) -> str:
+    value = os.environ.get(name)
+    if not value:
+        logger.error(
+            f"Missing required environment variable: {name}. "
+            f"Set it in Railway under your service's Variables tab, then redeploy."
+        )
+        sys.exit(1)
+    return value
+
+
+TELEGRAM_TOKEN = get_required_env("TELEGRAM_BOT_TOKEN")
+ANTHROPIC_API_KEY = get_required_env("ANTHROPIC_API_KEY")
 
 client = Anthropic(api_key=ANTHROPIC_API_KEY)
 
